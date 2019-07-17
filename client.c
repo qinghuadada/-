@@ -1,24 +1,5 @@
-/*************************************************************************
-#	 FileName	: server.c
-#	 Author		: fengjunhui 
-#	 Email		: 18883765905@163.com 
-#	 Created	: 2018年12月29日 星期六 13时44分59秒
- ************************************************************************/
-
-#include<stdio.h>
-#include <sys/types.h>          /* See NOTES */
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
 
 #include "common.h"
-
 
 void show_userinfo(MSG *msg)
 {
