@@ -1,3 +1,4 @@
+
 #include "common.h"
 
 void show_userinfo(MSG *msg)
@@ -74,8 +75,8 @@ void do_admin_query(int sockfd,MSG *msg)
 
 
 /**************************************
- *函数名：do_admin_modification
- *功能  ：管理员修改信息
+ *函数名：do_admin_modificationi
+ *功能  ： 管理员修改信息
  ****************************************/
 void do_admin_modification(int sockfd,MSG *msg)
 {
@@ -166,7 +167,6 @@ void do_admin_modification(int sockfd,MSG *msg)
  ****************************************/
 void do_admin_adduser(int sockfd,MSG *msg)
 {		
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	//输入用户信息--填充封装命令请求---发送数据---等待服务器响应---成功之后自动查询当前添加的用户
 	char temp;
 	msg->msgtype  = ADMIN_ADDUSER;
@@ -182,7 +182,7 @@ void do_admin_adduser(int sockfd,MSG *msg)
 		printf("工号信息一旦录入无法更改，请确认您所输入的是否正确！(Y/N)");
 		scanf("%c",&temp);
 		getchar();
-		if(temp == 'N' || temp == 'n'){
+		if(temp == 'N'){
 			printf("请重新添加用户：");
 			break;
 		}
@@ -226,9 +226,9 @@ void do_admin_adduser(int sockfd,MSG *msg)
 		printf("是否为管理员：(Y/N)");
 		scanf("%c",&temp);
 		getchar();
-		if(temp == 'Y' || temp == 'y')
+		if(temp == 'Y')
 			msg->info.usertype = ADMIN;
-		else if(temp == 'N' || temp == 'n')
+		else if(temp == 'N')
 			msg->info.usertype = USER;
 		printf("msg->info.usertype:%d\n",msg->info.usertype);
 
@@ -245,7 +245,7 @@ void do_admin_adduser(int sockfd,MSG *msg)
 		printf("是否继续添加员工:(Y/N)");
 		scanf("%c",&temp);
 		getchar();
-		if(temp == 'N' || temp == 'n')
+		if(temp == 'N')
 			break;
 	}
 
@@ -258,7 +258,6 @@ void do_admin_adduser(int sockfd,MSG *msg)
  ****************************************/
 void do_admin_deluser(int sockfd,MSG *msg)
 {
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	//输入要删除的用户名和密码--封装命令请求---发送数据---等待服务器响应
 	
 	msg->msgtype = ADMIN_DELUSER;
@@ -278,7 +277,7 @@ void do_admin_deluser(int sockfd,MSG *msg)
 	else
 		printf("%s",msg->recvmsg);
 
-	printf("删除工号为：%d 的用户.\n",msg->info.no);
+	printf("删除工号为：%d 的用户\n",msg->info.no);
 
 }
 
@@ -350,16 +349,13 @@ void admin_menu(int sockfd,MSG *msg)
 	}
 }
 
-
 /**************************************
  *函数名：do_user_query
  *功能  ：员工查询信息
  ****************************************/
 void do_user_query(int sockfd,MSG *msg)
 {
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	//封装消息---发送消息---等待服务器响应
-
 	msg->msgtype = USER_QUERY;
 	
 	//只能查询自己的信息，所以不需要重新输入用户名，直接send请求就可以
@@ -378,7 +374,6 @@ void do_user_query(int sockfd,MSG *msg)
  ****************************************/
 void do_user_modification(int sockfd,MSG *msg)
 {
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	int n = 0;
 	msg->msgtype = USER_MODIFY;
 
@@ -398,17 +393,20 @@ void do_user_modification(int sockfd,MSG *msg)
 		case 1:
 			printf("请输入家庭住址：");
 			msg->recvmsg[0] = 'D';
-			scanf("%s",msg->info.addr);getchar();
+			scanf("%s",msg->info.addr);
+			getchar();
 			break;
 		case 2:
 			printf("请输入电话：");
 			msg->recvmsg[0] = 'P';
-			scanf("%s",msg->info.phone);getchar();
+			scanf("%s",msg->info.phone);
+			getchar();
 			break;
 		case 3:
 			printf("请输入新密码：(6位数字)");
-			msg->recvmsg[0] = 'M';
-			scanf("%6s",msg->info.passwd);getchar();
+			msg->recvmsg[0]= 'M';
+			scanf("%6s",msg->info.passwd);
+			getchar();
 			break;
 		case 4:
 			return ;
@@ -416,13 +414,10 @@ void do_user_modification(int sockfd,MSG *msg)
 	
 	send(sockfd, msg, sizeof(MSG), 0);
 	recv(sockfd, msg, sizeof(MSG), 0);
-	printf("%s",msg->recvmsg);
+//	printf("%s",msg->recvmsg);
 
 	printf("修改结束.\n");
-	
-	
 }
-
 
 /**************************************
  *函数名：user_menu
@@ -430,7 +425,6 @@ void do_user_modification(int sockfd,MSG *msg)
  ****************************************/
 void user_menu(int sockfd,MSG *msg)
 {
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	int n;
 	while(1)
 	{
@@ -453,13 +447,14 @@ void user_menu(int sockfd,MSG *msg)
 				msg->msgtype = QUIT;
 				send(sockfd, msg, sizeof(MSG), 0);
 				close(sockfd);
-				exit(0);
+				break;
 			default:
 				printf("您输入有误，请输入数字\n");
 				break;
 		}
 	}
 }
+
 
 
 /**************************************
@@ -485,7 +480,6 @@ int admin_or_user_login(int sockfd,MSG *msg)
 	//接受服务器响应
 	recv(sockfd, msg, sizeof(MSG), 0);
 	printf("msg->recvmsg :%s\n",msg->recvmsg);
-
 	//判断是否登陆成功
 	if(strncmp(msg->recvmsg, "OK", 2) == 0)
 	{
@@ -539,13 +533,18 @@ int do_login(int sockfd)
 				break;
 			case 3:
 				msg.msgtype = QUIT;
-				if(send(sockfd, &msg, sizeof(MSG), 0)<0)
+				send(sockfd, &msg, sizeof(MSG), 0);
+				close(sockfd);
+		/*		if(send(sockfd, &msg, sizeof(MSG), 0)<0)
 				{
 					perror("do_login send");
 					return -1;
 				}
 				close(sockfd);
 				exit(0);
+
+				*/
+				break;
 			default:
 				printf("您的输入有误，请重新输入\n"); 
 		}
@@ -564,8 +563,8 @@ int main(int argc, const char *argv[])
 	ssize_t recvbytes,sendbytes;
 	struct sockaddr_in serveraddr;
 	struct sockaddr_in clientaddr;
-	socklen_t addrlen = sizeof(serveraddr);
-	socklen_t cli_len = sizeof(clientaddr);
+	int addrlen = sizeof(serveraddr);
+	int cli_len = sizeof(clientaddr);
 
 	//创建网络通信的套接字
 	sockfd = socket(AF_INET,SOCK_STREAM, 0);
@@ -573,7 +572,6 @@ int main(int argc, const char *argv[])
 		perror("socket failed.\n");
 		exit(-1);
 	}
-	printf("sockfd :%d.\n",sockfd); 
 
 	//填充网络结构体
 	memset(&serveraddr,0,sizeof(serveraddr));
@@ -583,8 +581,8 @@ int main(int argc, const char *argv[])
 	serveraddr.sin_addr.s_addr = inet_addr(argv[1]);
 
 	if(connect(sockfd,(const struct sockaddr *)&serveraddr,addrlen) == -1){
-		perror("connect failed.\n");
-		exit(-1);
+		printf("connect failed.\n");
+		return -1;
 	}
 
 	do_login(sockfd);

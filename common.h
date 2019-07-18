@@ -63,7 +63,6 @@ typedef struct {
 	char passwd[8];			 //登陆密码
 	char recvmsg[DATALEN];   //通信的消息
 	int  flags;      //标志位
-	void *released;
 	staff_info_t info;      //员工信息
 }MSG;
 

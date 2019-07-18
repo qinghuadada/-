@@ -53,11 +53,11 @@ int process_user_or_admin_login_request(int acceptfd,MSG *msg)
 	char **result;
 	int nrow,ncolumn;
 
-	msg->info.usertype =  msg->usertype;
+ 	msg->info.usertype =  msg->usertype;
 	strcpy(msg->info.name,msg->username);
 	strcpy(msg->info.passwd,msg->passwd);
 	
-//	printf("usrtype: %#x-----usrname: %s---passwd: %s.\n",msg->info.usertype,msg->info.name,msg->info.passwd);
+	printf("usrtype: %#x-----usrname: %s---passwd: %s.\n",msg->info.usertype,msg->info.name,msg->info.passwd);
 	sprintf(sql,"select * from usrinfo where usertype=%d and name='%s' and passwd='%s';",msg->info.usertype,msg->info.name,msg->info.passwd);
 	if(sqlite3_get_table(db,sql,&result,&nrow,&ncolumn,&errmsg) != SQLITE_OK){
 		printf("---****----%s.\n",errmsg);		
@@ -79,7 +79,6 @@ int process_user_or_admin_login_request(int acceptfd,MSG *msg)
 *******************************************************/
 int process_user_modify_request(int acceptfd,MSG *msg)
 {
-	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	int nrow,ncolumn;
 	char *errmsg, **resultp;
 	char sql[DATALEN] = {0};	
@@ -100,23 +99,23 @@ int process_user_modify_request(int acceptfd,MSG *msg)
 			sprintf(historybuf,"%s修改工号为%d的密码为%s",msg->username,msg->info.no,msg->info.passwd);
 			break;
 	}
-	printf("msgtype :%#x--usrtype: %#x--usrname: %s-passwd: %s.\n",msg->msgtype,msg->info.usertype,msg->info.name,msg->info.passwd);
-	printf("msg->info.no :%d\t msg->info.addr %s\t msg->info.phone: %s.\n",msg->info.no,msg->info.addr,msg->info.phone);
+//	printf("msgtype :%#x--usrtype: %#x--usrname: %s-passwd: %s.\n",msg->msgtype,msg->info.usertype,msg->info.name,msg->info.passwd);
+//	printf("msg->info.no :%d\t msg->info.addr %s\t msg->info.phone: %s.\n",msg->info.no,msg->info.addr,msg->info.phone);
 
 	//调用sqlite3_exec执行sql命令
 	if(sqlite3_exec(db,sql,NULL,NULL,&errmsg) != SQLITE_OK){
-		printf("%s.\n",errmsg);
-		sprintf(msg->recvmsg,"数据库修改失败！%s\n", errmsg);
+		printf("%s \n",errmsg);
+//		sprintf(msg->recvmsg,"数据库修改失败！%s\n", errmsg);
 	}else{
-		printf("the database is updated successfully.\n");
-		sprintf(msg->recvmsg, "数据库修改成功!\n");
+		printf("the database is updated successfully\n");
+//		sprintf(msg->recvmsg, "数据库修改成功!\n");
 		history_init(msg,historybuf);
 	}
 
 	//通知用户信息修改成功
 	send(acceptfd,msg,sizeof(MSG),0);
 
-	printf("------%s.\n",historybuf);
+//	printf("------%s.\n",historybuf);
 	return 0;
 
 }
@@ -142,7 +141,7 @@ int process_user_query_request(int acceptfd,MSG *msg)
 	if(sqlite3_get_table(db, sql, &resultp,&nrow,&ncolumn,&errmsg) != SQLITE_OK){
 		printf("%s.\n",errmsg);
 	}else{
-		printf("searching.....\n");	
+//		printf("searching.....\n");	
 		for(i = 0; i < ncolumn; i ++){
 			printf("%-8s ",resultp[i]);
 		}
@@ -166,11 +165,10 @@ int process_user_query_request(int acceptfd,MSG *msg)
 		}
 
 		sqlite3_free_table(resultp);
-		printf("sqlite3_get_table successfully.\n");
+	//	printf("sqlite3_get_table successfully.\n");
 	}
 
 }
-
 
 /******************************************************
 *函数名：process_admin_modify_request 
@@ -183,6 +181,7 @@ int process_admin_modify_request(int acceptfd,MSG *msg)
 	char *errmsg, **resultp;
 	char sql[DATALEN] = {0};	
 	char historybuf[DATALEN] = {0};
+
 	switch (msg->recvmsg[0])
 	{
 		case 'N':
@@ -323,7 +322,6 @@ int process_admin_query_request(int acceptfd,MSG *msg)
 {
 	printf("------------%s-----------%d.\n",__func__,__LINE__);
 	//检查msg->flags--->封装sql命令－查找历史记录表－回调函数－发送查询结果－发送结束标志
-
 	
 	int i = 0,j = 0;
 	char sql[DATALEN] = {0};
@@ -357,6 +355,7 @@ int process_admin_query_request(int acceptfd,MSG *msg)
 				resultp[index+ncolumn-9],resultp[index+ncolumn-8],resultp[index+ncolumn-7],resultp[index+ncolumn-6],resultp[index+ncolumn-5],\
 				resultp[index+ncolumn-4],resultp[index+ncolumn-3],resultp[index+ncolumn-2],resultp[index+ncolumn-1]);
 				
+
 			sprintf(msg->recvmsg,"%s,    %s,    %s,    %s,    %s,    %s,    %s,    %s,    %s,    %s,    %s;",resultp[index+ncolumn-11],resultp[index+ncolumn-10],\
 				resultp[index+ncolumn-9],resultp[index+ncolumn-8],resultp[index+ncolumn-7],resultp[index+ncolumn-6],resultp[index+ncolumn-5],\
 				resultp[index+ncolumn-4],resultp[index+ncolumn-3],resultp[index+ncolumn-2],resultp[index+ncolumn-1]);
@@ -375,6 +374,7 @@ int process_admin_query_request(int acceptfd,MSG *msg)
 		
 		sqlite3_free_table(resultp);
 		printf("sqlite3_get_table successfully.\n");
+	printf("------------%s-----------%n",__func__,__LINE__);
 	}
 
 
@@ -570,7 +570,10 @@ int main(int argc, const char *argv[])
 	int retval;
 	int i = 0;
 
-
+#if 0 //添加线程控制部分
+	pthread_t thread[N];
+	int tid = 0;
+#endif
 
 	while(1){
 		tempfds = readfds;
